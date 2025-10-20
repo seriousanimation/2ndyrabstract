@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>An Interactive Guide to Abstract Painting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Academic Neutral -->
+    <!-- Application Structure Plan: The SPA is designed as a three-part learning journey to guide students from theory to practice. It starts with an interactive historical timeline ('The Genesis') to provide context, moves to a conceptual explorer ('The Approaches') to break down methodologies, and culminates in a practical workshop ('Assignment Toolkit') with an idea generator. This structure was chosen to make the information digestible and directly applicable to the students' assignment, moving from broad history to specific, actionable advice. The navigation is fixed for easy access to each section, encouraging non-linear exploration. -->
+    <!-- Visualization & Content Choices: 
+        1. Report Info: History of Abstract Art -> Goal: Show chronological development -> Viz/Presentation: Interactive Timeline Chart -> Interaction: User clicks on a point in time (a 'movement'); a content area updates with details -> Justification: More engaging than a list, visually represents time and relationships -> Library/Method: Chart.js (Scatter Plot).
+        2. Report Info: Methodologies (Stylization, Isolation, Pure Abstraction) -> Goal: Differentiate core concepts -> Viz/Presentation: Interactive cards with dynamic canvas examples -> Interaction: Clicking a card reveals an explanation and a simple animation on a canvas element that visually demonstrates the concept -> Justification: Provides dynamic visual reinforcement of abstract ideas, making them easier to grasp than text alone -> Library/Method: Vanilla JS with the HTML Canvas API.
+        3. Report Info: Assignment Brief Breakdown -> Goal: Help students brainstorm practical ideas -> Viz/Presentation: An interactive "Concept Weaver" tool -> Interaction: User selects their theme and a visual element (color, mark-making); the tool generates relevant keywords -> Justification: Bridges theory and practice by providing a hands-on tool that makes the report's information actionable for their specific task -> Library/Method: HTML and Vanilla JS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4;
+            color: #333333;
+        }
+        .chart-container {
+            position: relative; 
+            width: 100%; 
+            max-width: 900px; 
+            margin-left: auto; 
+            margin-right: auto;
+            height: 300px;
+            max-height: 40vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-[#F8F7F4]/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-[#4A5568]">Abstract Painting Primer</h1>
+            <div class="hidden md:flex space-x-8">
+                <a href="#genesis" class="text-gray-600 hover:text-[#4A5568] transition-colors">The Genesis</a>
+                <a href="#approaches" class="text-gray-600 hover:text-[#4A5568] transition-colors">The Approaches</a>
+                <a href="#toolkit" class="text-gray-600 hover:text-[#4A5568] transition-colors">Assignment Toolkit</a>
+            </div>
+            <div class="md:hidden">
+                <select id="mobile-nav" class="bg-white border border-gray-300 rounded-md py-1 px-2 text-gray-700">
+                    <option value="#genesis">The Genesis</option>
+                    <option value="#approaches">The Approaches</option>
+                    <option value="#toolkit">The Toolkit</option>
+                </select>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+
+        <section class="text-center mb-20">
+            <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">An Introduction to Abstract Painting</h2>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">A guide for the 2nd Year Fine Arts Painting Students of NCA, Rawalpindi. Explore the history, understand the methods, and find inspiration for your assignment.</p>
+        </section>
+
+        <section id="genesis" class="mb-24 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center text-[#4A5568] mb-4">The Genesis of Abstraction</h3>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-12">Abstract art did not appear overnight. It was a gradual shift away from realistic representation, evolving through various movements that challenged the very purpose of art. This timeline highlights the key milestones in that journey. Click on any point to learn more about a specific movement and its contribution.</p>
+            <div class="bg-white rounded-lg shadow-lg p-4 md:p-8">
+                <div class="chart-container">
+                    <canvas id="timelineChart"></canvas>
+                </div>
+                <div id="timeline-info" class="mt-8 p-6 bg-gray-50 rounded-lg min-h-[150px] transition-all duration-300">
+                    <h4 id="info-title" class="font-bold text-xl text-gray-800 mb-2">Welcome to the Timeline</h4>
+                    <p id="info-text" class="text-gray-700">Click on a point on the chart above to explore a pivotal moment in the history of abstract art. Discover the ideas, artists, and innovations that paved the way for non-representational painting.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="approaches" class="mb-24 scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center text-[#4A5568] mb-4">The Artist's Approaches</h3>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-12">How does an artist arrive at abstraction? There isn't a single path. The journey can begin from the visible world, from an internal sensation, or from the pure exploration of form itself. Select an approach below to see an explanation and a dynamic visual interpretation.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="approach-card bg-white rounded-lg shadow-lg p-6 cursor-pointer border-2 border-transparent hover:border-[#4A5568] transition-all" data-approach="observation">
+                    <h4 class="font-bold text-xl mb-2">1. From Observation</h4>
+                    <p class="text-gray-600">Abstracting from a recognizable subject by stylizing its form or isolating its core elements.</p>
+                </div>
+                <div class="approach-card bg-white rounded-lg shadow-lg p-6 cursor-pointer border-2 border-transparent hover:border-[#4A5568] transition-all" data-approach="sensation">
+                    <h4 class="font-bold text-xl mb-2">2. From Sensation</h4>
+                    <p class="text-gray-600">Translating an internal or sensory experience, like music or emotion, into visual language.</p>
+                </div>
+                <div class="approach-card bg-white rounded-lg shadow-lg p-6 cursor-pointer border-2 border-transparent hover:border-[#4A5568] transition-all" data-approach="scratch">
+                    <h4 class="font-bold text-xl mb-2">3. From Scratch</h4>
+                    <p class="text-gray-600">Creating from pure intuition, focusing on the expressive qualities of color, line, and form.</p>
+                </div>
+            </div>
+            <div id="approach-display" class="mt-8 flex flex-col md:flex-row gap-8 items-center bg-white rounded-lg shadow-lg p-8 min-h-[300px]">
+                <div class="w-full md:w-1/2">
+                    <h4 id="approach-title" class="font-bold text-2xl text-gray-800 mb-4">Select an Approach</h4>
+                    <p id="approach-text" class="text-gray-700">Choose one of the three methods above to explore the different pathways to creating abstract art. Each path offers a unique way of thinking and seeing.</p>
+                </div>
+                <div class="w-full md:w-1/2 h-64 bg-gray-100 rounded-md">
+                    <canvas id="approach-canvas" class="w-full h-full"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="toolkit" class="scroll-mt-20">
+            <h3 class="text-3xl font-bold text-center text-[#4A5568] mb-4">Assignment Toolkit: The Concept Weaver</h3>
+            <p class="text-center text-gray-600 max-w-3xl mx-auto mb-12">This tool is designed to help you brainstorm for your assignment. First, read the brief carefully. Then, use the selectors to weave together your chosen theme with the formal elements of art. Let this guide your creative exploration.</p>
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <div class="mb-8 p-6 border-l-4 border-[#4A5568] bg-gray-50">
+                    <h4 class="font-bold text-lg text-gray-800 mb-2">Assignment Brief</h4>
+                    <p class="text-gray-700 italic">"You'll have to choose a set of three things of the same kind, like three times of day, three songs, three flavours, three emotions. You will then think of what scale, medium, type of mark making, colors, and composition would convey how you feel about each of them without showing their likeness or appearance."</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <div class="mb-4">
+                            <label for="theme-select" class="block text-sm font-medium text-gray-700 mb-1">1. Choose your theme family:</label>
+                            <select id="theme-select" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-[#4A5568] focus:border-[#4A5568]">
+                                <option value="emotions">Three Emotions (e.g., Joy, Sorrow, Anger)</option>
+                                <option value="times">Three Times of Day (e.g., Dawn, Noon, Dusk)</option>
+                                <option value="songs">Three Songs (e.g., Classical, Rock, Electronic)</option>
+                                <option value="flavours">Three Flavours (e.g., Sweet, Sour, Spicy)</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">2. Explore a formal element:</label>
+                            <div id="element-buttons" class="flex flex-wrap gap-2">
+                                <button class="element-btn bg-gray-200 hover:bg-[#4A5568] hover:text-white text-gray-800 py-2 px-4 rounded-md transition-colors">Color</button>
+                                <button class="element-btn bg-gray-200 hover:bg-[#4A5568] hover:text-white text-gray-800 py-2 px-4 rounded-md transition-colors">Mark Making</button>
+                                <button class="element-btn bg-gray-200 hover:bg-[#4A5568] hover:text-white text-gray-800 py-2 px-4 rounded-md transition-colors">Composition</button>
+                                <button class="element-btn bg-gray-200 hover:bg-[#4A5568] hover:text-white text-gray-800 py-2 px-4 rounded-md transition-colors">Scale</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg min-h-[200px]">
+                         <h4 class="font-bold text-lg text-gray-800 mb-2">Brainstorming Keywords:</h4>
+                         <p id="keywords-output" class="text-gray-700">Select a theme and a formal element to generate ideas. For example, how would the 'Color' for 'Joy' differ from the 'Color' for 'Sorrow'?</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-100 mt-24">
+        <div class="container mx-auto px-6 py-8 text-center text-gray-500">
+            <p>Designed as an educational resource for the National College of Arts, Rawalpindi.</p>
+            <p class="text-sm mt-2">&copy; 2025 Abstract Painting Primer. All rights reserved.</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    
+    const mobileNav = document.getElementById('mobile-nav');
+    mobileNav.addEventListener('change', (e) => {
+        const target = document.querySelector(e.target.value);
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+
+    const timelineData = {
+        'Post-Impressionism (1886-1905)': {
+            text: 'Artists like Cézanne, Van Gogh, and Gauguin began to prioritize emotional expression and underlying structure over realistic depiction. They broke ground by using color, form, and line subjectively, setting the stage for all modern art to follow.',
+            coords: { x: 1895, y: 1 }
+        },
+        'Fauvism (1905-1908)': {
+            text: 'Led by Matisse, the Fauves ("wild beasts") used intense, non-naturalistic colors and bold brushwork to express pure emotion. Color was liberated from its descriptive role and became a subject in itself.',
+            coords: { x: 1906, y: 2 }
+        },
+        'Cubism (1907-1914)': {
+            text: 'Picasso and Braque revolutionized painting by abandoning single-point perspective. They deconstructed objects into geometric forms and depicted subjects from multiple viewpoints simultaneously, fracturing the picture plane.',
+            coords: { x: 1910, y: 1.5 }
+        },
+        'Birth of Pure Abstraction (1910-1913)': {
+            text: 'Wassily Kandinsky is credited with creating one of the first purely abstract paintings. He believed art should be spiritual and divorced from the material world, akin to music. This marked the true beginning of non-representational art.',
+            coords: { x: 1911, y: 2.5 }
+        },
+        'Suprematism (1915-1925)': {
+            text: 'Founded by Kazimir Malevich, this Russian movement sought the "supremacy of pure feeling or perception in the pictorial arts." It used fundamental geometric shapes (squares, circles) and a limited palette to create compositions of pure form.',
+            coords: { x: 1920, y: 1 }
+        },
+        'De Stijl (1917-1931)': {
+            text: 'Also known as Neo-Plasticism, this Dutch movement, featuring artists like Piet Mondrian, aimed for universal harmony. They reduced their visual vocabulary to primary colors, black and white, and horizontal/vertical lines.',
+            coords: { x: 1924, y: 2 }
+        },
+        'Abstract Expressionism (1940s-1950s)': {
+            text: 'Centered in New York, this movement emphasized spontaneous, subconscious creation. It included "Action Painters" like Jackson Pollock, who dripped and poured paint, and "Color Field" painters like Mark Rothko, who used large, emotive blocks of color.',
+            coords: { x: 1950, y: 1.5 }
+        },
+    };
+
+    const infoTitle = document.getElementById('info-title');
+    const infoText = document.getElementById('info-text');
+
+    const ctx = document.getElementById('timelineChart').getContext('2d');
+    const timelineChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Art Movements',
+                data: Object.keys(timelineData).map(key => timelineData[key].coords),
+                backgroundColor: 'rgba(74, 85, 104, 0.7)',
+                borderColor: 'rgba(74, 85, 104, 1)',
+                pointRadius: 10,
+                pointHoverRadius: 15,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    type: 'linear',
+                    position: 'bottom',
+                    min: 1880,
+                    max: 1960,
+                    title: {
+                        display: true,
+                        text: 'Year'
+                    }
+                },
+                y: {
+                    display: false,
+                    min: 0,
+                    max: 3
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    enabled: true,
+                    callbacks: {
+                        label: function(context) {
+                            const label = Object.keys(timelineData)[context.dataIndex];
+                            return label;
+                        }
+                    }
+                }
+            },
+            onClick: (e, elements) => {
+                if (elements.length > 0) {
+                    const index = elements[0].index;
+                    const movement = Object.keys(timelineData)[index];
+                    infoTitle.textContent = movement;
+                    infoText.textContent = timelineData[movement].text;
+                }
+            }
+        }
+    });
+
+    const approachCards = document.querySelectorAll('.approach-card');
+    const approachTitle = document.getElementById('approach-title');
+    const approachText = document.getElementById('approach-text');
+    const approachCanvas = document.getElementById('approach-canvas');
+    const approachCtx = approachCanvas.getContext('2d');
+    let animationFrameId;
+
+    const approachContent = {
+        observation: {
+            title: 'From Observation',
+            text: 'This method starts with a tangible subject from the real world. The artist then simplifies, deconstructs, or stylizes it to emphasize its formal qualities—line, shape, color—over its literal identity. Think of Picasso progressively simplifying a bull into a few elegant lines, or Georgia O\'Keeffe zooming into a flower until it becomes a landscape of pure form and color.',
+            animation: drawObservation
+        },
+        sensation: {
+            title: 'From Sensation',
+            text: 'Here, the starting point is not visible but felt. The artist acts as a translator for an emotion, a sound, or even a taste. Wassily Kandinsky famously linked colors to musical notes (synesthesia), creating compositions that were visual symphonies. The goal is to evoke a feeling in the viewer directly, bypassing the need for a recognizable subject matter.',
+            animation: drawSensation
+        },
+        scratch: {
+            title: 'From Scratch',
+            text: 'This is the most direct form of abstraction, originating purely from the artist\'s intuition and the physical act of painting. Abstract Expressionists like Jackson Pollock let his subconscious guide his drips and splatters. The subject becomes the process of creation itself: the texture of the paint, the energy of the mark, and the balance of color and form on the canvas.',
+            animation: drawScratch
+        }
+    };
+
+    function resizeCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        const rect = approachCanvas.getBoundingClientRect();
+        approachCanvas.width = rect.width * dpr;
+        approachCanvas.height = rect.height * dpr;
+        approachCtx.scale(dpr, dpr);
+    }
+    
+    window.addEventListener('resize', resizeCanvas, false);
+    
+    let currentAnimation = null;
+    approachCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const approach = card.dataset.approach;
+            const content = approachContent[approach];
+            
+            approachCards.forEach(c => c.classList.remove('border-[#4A5568]', 'bg-gray-50'));
+            card.classList.add('border-[#4A5568]', 'bg-gray-50');
+
+            approachTitle.textContent = content.title;
+            approachText.textContent = content.text;
+
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            currentAnimation = content.animation;
+            resizeCanvas();
+            currentAnimation();
+        });
+    });
+    
+    let t = 0;
+    function drawObservation() {
+        t += 0.01;
+        const simplification = Math.sin(t) * 0.5 + 0.5; 
+        const w = approachCanvas.width / (window.devicePixelRatio || 1);
+        const h = approachCanvas.height / (window.devicePixelRatio || 1);
+        approachCtx.clearRect(0, 0, w, h);
+        
+        approachCtx.strokeStyle = '#4A5568';
+        approachCtx.lineWidth = 3;
+
+        const points = 5 + Math.floor((1 - simplification) * 15);
+        const radius = w / 4;
+
+        approachCtx.beginPath();
+        for (let i = 0; i <= points; i++) {
+            const angle = (i / points) * Math.PI * 2;
+            const x = w / 2 + Math.cos(angle) * radius * (1 + (Math.sin(angle * 3 + t) * 0.2 * (1 - simplification)));
+            const y = h / 2 + Math.sin(angle) * radius * (1 + (Math.cos(angle * 5 + t) * 0.2 * (1 - simplification)));
+            if (i === 0) {
+                approachCtx.moveTo(x, y);
+            } else {
+                approachCtx.lineTo(x, y);
+            }
+        }
+        approachCtx.closePath();
+        approachCtx.stroke();
+        
+        animationFrameId = requestAnimationFrame(drawObservation);
+    }
+
+    let angle = 0;
+    function drawSensation() {
+        angle += 0.02;
+        const w = approachCanvas.width / (window.devicePixelRatio || 1);
+        const h = approachCanvas.height / (window.devicePixelRatio || 1);
+        approachCtx.clearRect(0, 0, w, h);
+        
+        const colors = ['#e74c3c', '#3498db', '#f1c40f'];
+        for (let i = 0; i < 3; i++) {
+            approachCtx.beginPath();
+            approachCtx.fillStyle = colors[i];
+            const x = w/2 + Math.cos(angle + i * 2) * 50;
+            const y = h/2 + Math.sin(angle + i * 2) * 50;
+            const size = 20 + Math.sin(angle * 2 + i) * 15;
+            approachCtx.arc(x, y, size, 0, Math.PI * 2);
+            approachCtx.fill();
+        }
+
+        animationFrameId = requestAnimationFrame(drawSensation);
+    }
+    
+    let lines = [];
+    function drawScratch() {
+        const w = approachCanvas.width / (window.devicePixelRatio || 1);
+        const h = approachCanvas.height / (window.devicePixelRatio || 1);
+
+        if (lines.length === 0 || Math.random() < 0.05) {
+            lines = [];
+            for(let i=0; i<5; i++) {
+                lines.push({
+                    x1: Math.random() * w,
+                    y1: Math.random() * h,
+                    x2: Math.random() * w,
+                    y2: Math.random() * h,
+                    c: `rgba(${Math.random()*100}, ${Math.random()*100}, ${Math.random()*100}, 0.7)`
+                });
+            }
+        }
+
+        approachCtx.clearRect(0, 0, w, h);
+        lines.forEach(line => {
+            approachCtx.beginPath();
+            approachCtx.moveTo(line.x1, line.y1);
+            approachCtx.lineTo(line.x2, line.y2);
+            approachCtx.lineWidth = Math.random() * 5 + 1;
+            approachCtx.strokeStyle = line.c;
+            approachCtx.stroke();
+            line.x1 += (Math.random() - 0.5) * 2;
+            line.y1 += (Math.random() - 0.5) * 2;
+        });
+
+        animationFrameId = requestAnimationFrame(drawScratch);
+    }
+
+
+    const themeSelect = document.getElementById('theme-select');
+    const elementButtons = document.querySelectorAll('.element-btn');
+    const keywordsOutput = document.getElementById('keywords-output');
+
+    const keywordsData = {
+        emotions: {
+            Color: 'Joy: Warm, bright, vibrant, saturated. Sorrow: Cool, muted, desaturated, monochromatic. Anger: Dissonant, clashing, intense, dark, reds.',
+            'Mark Making': 'Joy: Energetic, fluid, light, sweeping. Sorrow: Slow, heavy, dragging, controlled. Anger: Sharp, jagged, chaotic, violent, slashing.',
+            Composition: 'Joy: Open, upward, radial, balanced. Sorrow: Heavy, downward, compressed, empty. Anger: Fragmented, chaotic, unbalanced, diagonal.',
+            Scale: 'Joy: Expansive, large. Sorrow: Intimate, small, constrained. Anger: Overwhelming, imposing.'
+        },
+        times: {
+            Color: 'Dawn: Soft pastels, pinks, yellows, light blues. Noon: Intense, high-contrast, bright whites, deep shadows. Dusk: Deep purples, oranges, reds, muted tones.',
+            'Mark Making': 'Dawn: Gentle, blended, soft edges. Noon: Sharp, clear, defined lines. Dusk: Blurring, atmospheric, layered, scumbled.',
+            Composition: 'Dawn: Horizontal, calm, emergent. Noon: Vertical, strong, stark. Dusk: Sinking, horizontal, layered.',
+            Scale: 'Dawn: Growing, opening up. Noon: Stagnant, encompassing. Dusk: Fading, receding.'
+        },
+        songs: {
+            Color: 'Classical: Harmonious, analogous, balanced palettes. Rock: High-contrast, bold, often dark with bright accents. Electronic: Neon, synthetic, vibrant, rhythmic patterns.',
+            'Mark Making': 'Classical: Rhythmic, flowing, lyrical lines. Rock: Aggressive, strong, gestural marks. Electronic: Precise, repetitive, geometric, pulsing.',
+            Composition: 'Classical: Structured, symmetrical, layered harmony. Rock: Dynamic, diagonal, powerful focal points. Electronic: Grid-like, patterned, radiating.',
+            Scale: 'Classical: Grand, orchestral. Rock: Human-scale, confrontational. Electronic: Expansive, infinite.'
+        },
+        flavours: {
+            Color: 'Sweet: Pinks, light reds, soft pastels, creamy whites. Sour: Sharp greens, yellows, acidic tones. Spicy: Hot reds, oranges, deep blacks, explosive.',
+            'Mark Making': 'Sweet: Soft, rounded, blended, smooth. Sour: Sharp, acidic, tight, linear. Spicy: Erratic, explosive, scattered, sharp points.',
+            Composition: 'Sweet: Centered, rounded, simple. Sour: Pక్కering, contracting, off-balance. Spicy: Radiating, bursting from a center, chaotic.',
+            Scale: 'Sweet: Pleasant, comfortable. Sour: Small, intense. Spicy: All-encompassing, overwhelming.'
+        }
+    };
+
+    function updateKeywords() {
+        const theme = themeSelect.value;
+        const activeElement = document.querySelector('.element-btn.bg-\[\#4A5568\]');
+        if (theme && activeElement) {
+            const element = activeElement.textContent;
+            keywordsOutput.textContent = keywordsData[theme][element] || 'Select an element.';
+        } else {
+             keywordsOutput.textContent = 'Select a theme and a formal element to generate ideas.';
+        }
+    }
+
+    elementButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            elementButtons.forEach(btn => {
+                btn.classList.remove('bg-[#4A5568]', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-800');
+            });
+            button.classList.add('bg-[#4A5568]', 'text-white');
+            button.classList.remove('bg-gray-200', 'text-gray-800');
+            updateKeywords();
+        });
+    });
+
+    themeSelect.addEventListener('change', updateKeywords);
+
+});
+</script>
+</body>
+</html>
